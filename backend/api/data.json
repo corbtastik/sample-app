@@ -1,0 +1,7 @@
+{
+  "api": {
+    "name": "fake-api",
+    "version": "v1.0.0",
+    "message": "This data is from a fake backend API service."
+  }
+}

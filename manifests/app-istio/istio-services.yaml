@@ -1,0 +1,44 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: sample-app-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - sample-app.apps-crc.testing
+      port:
+        name: http2
+        number: 80
+        protocol: HTTP2
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: sample-app
+spec:
+  hosts:
+    - sample-app.apps-crc.testing
+  gateways:
+    - sample-app-gateway
+  http:
+    - name: "backend-api-route"
+      match:
+        - uri:
+            prefix: /api
+      route:
+        - destination:
+            host: backend-api.sample-app.svc.cluster.local
+            port:
+              number: 8080
+    - name: "frontend-ui-route"
+      match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: frontend-ui.sample-app.svc.cluster.local
+            port:
+              number: 8080

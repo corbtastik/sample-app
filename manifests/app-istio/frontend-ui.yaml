@@ -1,0 +1,57 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-ui
+  labels:
+    app: frontend-ui
+    service: frontend-ui
+    version: 1.0.0
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: frontend-ui
+    version: 1.0.0
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend-ui
+  labels:
+    account: frontend-ui
+    app: frontend-ui
+    version: 1.0.0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-ui
+  labels:
+    app: frontend-ui
+    version: 1.0.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-ui
+      version: 1.0.0
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: frontend-ui
+        version: 1.0.0
+    spec:
+      serviceAccountName: frontend-ui
+      containers:
+        - name: frontend-ui-container
+          image: quay.io/corbsmartin/frontend-ui:v1-ocp
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080

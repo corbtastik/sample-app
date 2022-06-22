@@ -1,0 +1,35 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: backend-api-route
+spec:
+  host: sample-app.apps-crc.testing
+  path: /api
+  to:
+    kind: Service
+    name: backend-api
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: frontend-ui-route
+spec:
+  host: sample-app.apps-crc.testing
+  to:
+    kind: Service
+    name: frontend-ui
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
