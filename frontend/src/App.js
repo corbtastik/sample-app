@@ -48,10 +48,7 @@ class App extends Component {
                         </a>
                         <code>NODE_ENV={process.env.NODE_ENV}</code>
                         <code>REACT_APP_VERSION={process.env.REACT_APP_VERSION}</code>
-                        <code>REACT_APP_IMAGE={process.env.REACT_APP_IMAGE}</code>
-                        <code>REACT_APP_API_HOST={process.env.REACT_APP_API_HOST}</code>
-                        <code>REACT_APP_API_PORT={process.env.REACT_APP_API_PORT}</code>
-                        <code>REACT_APP_API_ENDPOINT=={process.env.REACT_APP_API_ENDPOINT}</code>
+                        <code>REACT_APP_API_ENDPOINT={process.env.REACT_APP_API_ENDPOINT}</code>
                         <code>data.api.name={data.api.name}</code>
                         <code>data.api.version={data.api.version}</code>
                         <code>data.api.message={data.api.message}</code>

@@ -2,7 +2,7 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: sample-app-route
+  name: sample-app
 spec:
   host: sample-app.apps-crc.testing
   port:

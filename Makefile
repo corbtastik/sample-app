@@ -3,28 +3,31 @@
 # =============================================================================
 CONTAINER_REGISTRY=quay.io/corbsmartin
 FRONTEND_IMAGE=frontend-ui
-FRONTEND_IMAGE_TAG=v1-ocp
+FRONTEND_IMAGE_TAG=v1
 BACKEND_IMAGE=backend-api
-BACKEND_IMAGE_TAG=v1-ocp
+BACKEND_IMAGE_TAG=v1
 APP_NAMESPACE=sample-app
 ISTIO_NAMESPACE=istio-system
-
-init-frontend:
-	@cd ./frontend && npm install
 # =============================================================================
 # Build and run frontend container image for production
 # =============================================================================
 push-images: frontend-push backend-push
 
-frontend-image:
-	@cd ./frontend && REACT_APP_API_HOST=sample-app.apps-crc.testing \
-		REACT_APP_API_PORT=443 \
-		REACT_APP_API_ENDPOINT=https://sample-app.apps-crc.testing/api \
-		REACT_APP_IMAGE=$(FRONTEND_IMAGE):$(FRONTEND_IMAGE_TAG) \
-		npm run build
-	@podman build -f frontend.Containerfile -t $(FRONTEND_IMAGE):$(FRONTEND_IMAGE_TAG)
+frontend-dev-image:
+	@cp -r backend/api frontend/public
+	@mkdir -p frontend/.build-tmp
+	@mv frontend/.env.production frontend/.build-tmp
+	@cd frontend
+	@podman build -f frontend.Containerfile -t $(FRONTEND_IMAGE):$(FRONTEND_IMAGE_TAG) .
+	@cd ..
+	@mv frontend/.build-tmp/.env.production frontend/
+	@rm -fr frontend/.build-tmp
 
-frontend-push: frontend-image
+frontend-prod-image:
+	@cd frontend
+	@podman build -f frontend.Containerfile -t $(FRONTEND_IMAGE):$(FRONTEND_IMAGE_TAG) .
+
+frontend-push: frontend-prod-image
 	@podman tag $(FRONTEND_IMAGE):$(FRONTEND_IMAGE_TAG) \
 		$(CONTAINER_REGISTRY)/$(FRONTEND_IMAGE):$(FRONTEND_IMAGE_TAG)
 	@podman push $(CONTAINER_REGISTRY)/$(FRONTEND_IMAGE):$(FRONTEND_IMAGE_TAG)
@@ -32,7 +35,8 @@ frontend-push: frontend-image
 # Build and run backend container image for production
 # =============================================================================
 backend-image:
-	@podman build -f backend.Containerfile -t $(BACKEND_IMAGE):$(BACKEND_IMAGE_TAG)
+	@cd backend
+	@podman build -f backend.Containerfile -t $(BACKEND_IMAGE):$(BACKEND_IMAGE_TAG) .
 
 backend-push: backend-image
 	@podman tag $(BACKEND_IMAGE):$(BACKEND_IMAGE_TAG) \

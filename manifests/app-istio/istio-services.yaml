@@ -10,9 +10,9 @@ spec:
     - hosts:
         - sample-app.apps-crc.testing
       port:
-        name: http2
+        name: http
         number: 80
-        protocol: HTTP2
+        protocol: HTTP
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -30,7 +30,7 @@ spec:
             prefix: /api
       route:
         - destination:
-            host: backend-api.sample-app.svc.cluster.local
+            host: backend-api
             port:
               number: 8080
     - name: "frontend-ui-route"
@@ -39,6 +39,6 @@ spec:
             prefix: /
       route:
         - destination:
-            host: frontend-ui.sample-app.svc.cluster.local
+            host: frontend-ui
             port:
               number: 8080

@@ -1,0 +1,9 @@
+.git
+.gitignore
+.idea
+.vscode
+Makefile
+README.md
+frontend/build
+frontend/node_modules
+manifests
