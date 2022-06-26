@@ -1,70 +1,80 @@
-# Getting Started with Create React App
+# Sample-app
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a sample application for tinkering with:
 
-## Available Scripts
+1. Frontend UI to backend API connectivity
+2. Reactjs environment variable configuration
+3. Podman for building container images
+4. Multi-stage container image builds
+5. OpenShift and Code Ready Containers (aka OpenShift local)
+6. OpenShift Service Mesh (aka Istio)
 
-In the project directory, you can run:
+## Components
 
-### `npm start`
+### Frontend UI
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The [frontend](./frontend) directory contains a React App bootstrapped with [Create React App](https://github.com/facebook/create-react-app). The only thing that's been added is an API call to retrieve data and render it on the main view.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```javascript
+class App extends Component {
+    // code omitted
+    componentDidMount() {
+        fetch(process.env.REACT_APP_API_ENDPOINT + "/data.json")
+            .then(res => res.json())
+            .then((result) => { ... }, (error) => { ... })
+    }
+    // code omitted
+    render() {
+        // code omitted
+        <code>NODE_ENV={process.env.NODE_ENV}</code>
+        <code>REACT_APP_VERSION={process.env.REACT_APP_VERSION}</code>
+        <code>REACT_APP_API_ENDPOINT={process.env.REACT_APP_API_ENDPOINT}</code>
+        <code>data.api.name={data.api.name}</code>
+        <code>data.api.version={data.api.version}</code>
+        <code>data.api.message={data.api.message}</code>
+    }
+}
+```
 
-### `npm test`
+### Backend API
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The simplest of backend APIs, it's literally an apache-httpd server with a static `data.json` file. Zero-code required.
 
-### `npm run build`
+### Manifests
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Application manifests for deploying onto OpenShift two ways:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. First way ([manifests/app-ocp](manifests/app-ocp)) is using native OpenShift ingress routes.
+2. Second way ([manifests/app-istio](manifests/app-istio)) is using OpenShift Service Mesh.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Build Container Images
 
-### `npm run eject`
+The Makefile provided has targets to build container images for the frontend-ui and backend-api.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+To build and push container images, run the following target and set your container registry.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+# First you need to login to your registry: podman login quay.io
+make push-images CONTAINER_REGISTRY=quay.io/your-org
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Deploy
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+> Note: before deploying change the container images in the manifest with your registry.
 
-## Learn More
+### Using OpenShift ingress routing
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+oc new-project sample-app
+make apply 
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Using OpenShift Service Mesh
 
-### Code Splitting
+* Install OpenShift Service Mesh
+* Add sample-app namespace to the Service Mesh Member Role
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+oc new-project sample-app
+make apply-istio
+```
